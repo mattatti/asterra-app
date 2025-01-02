@@ -29,7 +29,7 @@ const IndexResultsPage: React.FC = () => {
     useEffect(() => {
         dispatch(fetchUsers());
     }, [dispatch]);
-    console.log('users hobbies', users.hobbies);
+    console.log('users', users);
     return (
         <table>
             <thead>
@@ -49,7 +49,7 @@ const IndexResultsPage: React.FC = () => {
                     <td>{user.lastName}</td>
                     <td>{user.address}</td>
                     <td>{user.phoneNumber}</td>
-                    <td>{user.hobbies?.join(', ')}</td>
+                    {user.hobbies && <td>{user.hobbies?.join(', ')}</td>}
                     <td>
                         <button onClick={() => handleDelete(user.id)}>Delete</button>
                     </td>

@@ -6,7 +6,7 @@ export interface IUser {
     lastName: string;
     address: string;
     phoneNumber: string;
-    hobbies?: string[];
+    hobbies: string[];
 }
 
 interface UsersState {
