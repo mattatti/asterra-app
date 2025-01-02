@@ -22,6 +22,7 @@ const AddHobbyForm: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         dispatch(addHobby({userId: Number(selectedUser), hobby}));
+        dispatch(fetchUsers());
     };
 
     useEffect(() => {

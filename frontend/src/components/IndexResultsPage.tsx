@@ -23,14 +23,13 @@ const IndexResultsPage: React.FC = () => {
 
         } catch (error) {
             console.error('Error deleting user:', error);
-            alert('Failed to delete user');
         }
     };
 
     useEffect(() => {
         dispatch(fetchUsers());
     }, [dispatch]);
-
+    console.log('users hobbies', users.hobbies);
     return (
         <table>
             <thead>
@@ -50,7 +49,7 @@ const IndexResultsPage: React.FC = () => {
                     <td>{user.lastName}</td>
                     <td>{user.address}</td>
                     <td>{user.phoneNumber}</td>
-                    <td>{user.hobbies?.map((hobby: any) => hobby.hobby).join(', ')}</td>
+                    <td>{user.hobbies?.join(', ')}</td>
                     <td>
                         <button onClick={() => handleDelete(user.id)}>Delete</button>
                     </td>
