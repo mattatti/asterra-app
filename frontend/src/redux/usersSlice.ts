@@ -6,7 +6,13 @@ export interface IUser {
     lastName: string;
     address: string;
     phoneNumber: string;
-    hobbies: string[];
+    hobbies: IHobby[];
+}
+
+interface IHobby {
+    id: number;
+    userId: number;
+    hobby: string;
 }
 
 interface UsersState {
@@ -34,7 +40,13 @@ export const addUser = createAsyncThunk('users/addUser', async (newUser: Omit<IU
         },
         body: JSON.stringify(newUser),
     });
-    return await response.json();
+    const result = await response.json();
+
+    // Ensure the response is a complete hobby object
+    if (!result.id) {
+        throw new Error('Invalid users data from API');
+    }
+    return result;
 });
 
 export const addHobby = createAsyncThunk('users/addHobby', async ({userId, hobby}: {
@@ -48,7 +60,13 @@ export const addHobby = createAsyncThunk('users/addHobby', async ({userId, hobby
         },
         body: JSON.stringify({userId, hobby}),
     });
-    return await response.json();
+    const result = await response.json();
+
+    // Ensure the response is a complete hobby object
+    if (!result.id || !result.userId || !result.hobby) {
+        throw new Error('Invalid hobby data from API');
+    }
+    return result;
 });
 
 const usersSlice = createSlice({
@@ -74,7 +92,7 @@ const usersSlice = createSlice({
             .addCase(addHobby.fulfilled, (state, action) => {
                 const user = state.users.find(user => user.id === action.payload.userId);
                 if (user) {
-                    user.hobbies = user.hobbies ? [...user.hobbies, action.payload.hobby] : [action.payload.hobby];
+                    user.hobbies = user.hobbies ? [...user.hobbies, action.payload] : [action.payload];
                 }
             });
     },

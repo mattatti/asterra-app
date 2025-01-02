@@ -1,16 +1,8 @@
 import React, {useState, useEffect} from 'react';
 import {useDispatch, useSelector} from "react-redux";
-import {addHobby, fetchUsers} from "../redux/usersSlice.ts";
+import {addHobby, fetchUsers, IUser} from "../redux/usersSlice.ts";
 import {AppDispatch, RootState} from '../redux/store';
 
-export interface IUser {
-    id: number;
-    firstName: string;
-    lastName: string;
-    address: string;
-    phoneNumber: string;
-    hobbies?: string[];
-}
 
 const AddHobbyForm: React.FC = () => {
 
