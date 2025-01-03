@@ -6,7 +6,7 @@ export interface IUser {
     lastName: string;
     address: string;
     phoneNumber: string;
-    hobbies: IHobby[];
+    hobbies?: IHobby[];
 }
 
 interface IHobby {
@@ -41,8 +41,6 @@ export const addUser = createAsyncThunk('users/addUser', async (newUser: Omit<IU
         body: JSON.stringify(newUser),
     });
     const result = await response.json();
-
-    // Ensure the response is a complete hobby object
     if (!result.id) {
         throw new Error('Invalid users data from API');
     }
@@ -61,12 +59,20 @@ export const addHobby = createAsyncThunk('users/addHobby', async ({userId, hobby
         body: JSON.stringify({userId, hobby}),
     });
     const result = await response.json();
-
-    // Ensure the response is a complete hobby object
     if (!result.id || !result.userId || !result.hobby) {
         throw new Error('Invalid hobby data from API');
     }
     return result;
+});
+
+export const deleteUser = createAsyncThunk('users/deleteUser', async (userId: number) => {
+    await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/${userId}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    });
+    return userId;
 });
 
 const usersSlice = createSlice({
@@ -87,13 +93,16 @@ const usersSlice = createSlice({
                 state.error = action.error.message || 'Failed to fetch users';
             })
             .addCase(addUser.fulfilled, (state, action) => {
-                state.users.push(action.payload);
+                state.users.unshift(action.payload);
             })
             .addCase(addHobby.fulfilled, (state, action) => {
                 const user = state.users.find(user => user.id === action.payload.userId);
                 if (user) {
                     user.hobbies = user.hobbies ? [...user.hobbies, action.payload] : [action.payload];
                 }
+            })
+            .addCase(deleteUser.fulfilled, (state, action) => {
+                state.users = state.users.filter(user => user.id !== action.payload);
             });
     },
 });

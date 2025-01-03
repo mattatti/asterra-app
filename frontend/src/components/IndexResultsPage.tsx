@@ -1,7 +1,12 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from "react-redux";
-import {fetchUsers, IUser} from '../redux/usersSlice.ts';
+import {fetchUsers, deleteUser} from '../redux/usersSlice.ts';
 import {AppDispatch, RootState} from '../redux/store';
+import {DataGrid, GridColDef} from '@mui/x-data-grid';
+import {Box, Button, IconButton, Tooltip} from '@mui/material';
+import {Delete} from "@mui/icons-material";
+import AddUserDialog from "./AddUserDialog.tsx";
+import AddHobbyDialog from "./AddHobbyDialog.tsx";
 
 interface IHobby {
     id: number;
@@ -10,58 +15,119 @@ interface IHobby {
 }
 
 const IndexResultsPage: React.FC = () => {
-
     const dispatch: AppDispatch = useDispatch();
     const users = useSelector((state: RootState) => state.users.users);
 
-    const handleDelete = async (userId: number) => {
-        try {
-            await fetch(
-                `${import.meta.env.VITE_API_BASE_URL}/api/users/${userId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                });
-            dispatch(fetchUsers());
+    const [dialogAddUserOpen, setDialogAddUserOpen] = useState(false);
+    const [dialogAddHobbyOpen, setDialogAddHobbyOpen] = useState(false);
 
-
-        } catch (error) {
-            console.error('Error deleting user:', error);
-        }
+    const handleCloseAddHobbyDialog = () => {
+        setDialogAddHobbyOpen(false);
     };
+
+    const handleCloseAddUserDialog = () => {
+        setDialogAddUserOpen(false);
+    };
+
+    const handleDelete = (userId: number) => {
+        dispatch(deleteUser(userId));
+    };
+
+    const columns: GridColDef[] = [{
+        field: 'firstName',
+        flex: 0.8,
+        headerName: 'First Name',
+        width: 200,
+        sortable: true,
+    }, {
+        field: 'lastName',
+        flex: 0.8,
+        headerName: 'Last Name',
+        width: 200,
+        sortable: true,
+    }, {
+        field: 'address',
+        flex: 0.8,
+        headerName: 'Address',
+        width: 200,
+        sortable: true,
+    }, {
+        field: 'phoneNumber',
+        flex: 0.8,
+        headerName: 'Phone Number',
+        width: 200,
+        sortable: true,
+    }, {
+        field: 'hobbies',
+        flex: 1,
+        headerName: 'Hobbies',
+        width: 200,
+        sortable: false,
+        renderCell: (params) => {
+            const hobbies = params.row.hobbies as IHobby[] || [];
+            const hobbiesString = hobbies.map((hobby: IHobby) => hobby.hobby).join(', ');
+            return (
+                <Tooltip title={hobbiesString}>
+                    <span>{hobbiesString}</span>
+                </Tooltip>
+            );
+        },
+    }, {
+        field: 'actions',
+        flex: 0.3,
+        headerName: '',
+        width: 200,
+        filterable: false,
+        sortable: false,
+        renderCell: (params) => {
+            const user = params.row;
+            return (
+                <div style={{float: 'right'}}>
+                    <IconButton color='error' onClick={() => handleDelete(user.id)}>
+                        <Delete/>
+                    </IconButton>
+                </div>
+            );
+        },
+    }];
 
     useEffect(() => {
         dispatch(fetchUsers());
     }, [dispatch]);
 
     return (
-        <table>
-            <thead>
-            <tr>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Address</th>
-                <th>Phone Number</th>
-                <th>Hobbies</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            {users.map((user: IUser) => (
-                <tr key={user.id}>
-                    <td>{user.firstName}</td>
-                    <td>{user.lastName}</td>
-                    <td>{user.address}</td>
-                    <td>{user.phoneNumber}</td>
-                    {user.hobbies && <td>{user.hobbies.map((hobby: IHobby) => hobby.hobby).join(', ')}</td>}
-                    <td>
-                        <button onClick={() => handleDelete(user.id)}>Delete</button>
-                    </td>
-                </tr>
-            ))}
-            </tbody>
-        </table>
+        <>
+            <Box sx={{display: 'flex', gap: 2, padding: 1}}>
+                <Button
+                    sx={{border: '1px solid', color: 'black', backgroundColor: '#f0f0f0'}}
+                    onClick={() => setDialogAddUserOpen(true)}
+                >
+                    Add User
+                </Button>
+                <Button
+                    sx={{border: '1px solid', color: 'black', backgroundColor: '#f0f0f0'}}
+                    onClick={() => setDialogAddHobbyOpen(true)}
+                >
+                    Add Hobby
+                </Button>
+            </Box>
+
+            <DataGrid
+                rows={users}
+                columns={columns}
+                initialState={{
+                    pagination: {
+                        paginationModel: {
+                            pageSize: 5,
+                        },
+                    },
+                }}
+                pageSizeOptions={[5]}
+                disableRowSelectionOnClick
+            />
+            <AddHobbyDialog open={dialogAddHobbyOpen} onClose={handleCloseAddHobbyDialog}/>
+            <AddUserDialog open={dialogAddUserOpen} onClose={handleCloseAddUserDialog}/>
+        </>
     );
 };
 

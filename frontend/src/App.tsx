@@ -1,14 +1,12 @@
 import React from 'react';
-import AddUserForm from './components/AddUserForm';
-import AddHobbyForm from './components/AddHobbyForm';
 import IndexResultsPage from './components/IndexResultsPage';
+import {Typography} from "@mui/material";
 
 const App: React.FC = () => {
     return (
         <div>
-            <h1>User Management</h1>
-            <AddUserForm/>
-            <AddHobbyForm/>
+            <Typography sx={{fontSize: 20, color: 'black', fontWeight: 'bold'}}>User Management</Typography>
+
             <IndexResultsPage/>
         </div>
     );
