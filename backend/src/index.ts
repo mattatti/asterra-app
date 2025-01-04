@@ -8,7 +8,9 @@ import './models/associations';
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+app.use(cors({
+    origin: 'http://ec2-13-60-29-138.eu-north-1.compute.amazonaws.com:3000', // your frontend URL
+}));
 app.use(express.json());
 app.use('/api', userRoutes);
 app.use('/api', hobbyRoutes);
